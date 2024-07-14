@@ -27,7 +27,7 @@ const dbUrl = process.env.DATABASE_URL;
 
 // MongoDB 连接
 // mongoose.connect('mongodb://localhost:27017/knowledge_map');
-mongoose.connect(dbUrl);
+mongoose.connect('mongodb://viaduct.proxy.rlwy.net:37893/knowledgemap');
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 db.once('open', function () {
