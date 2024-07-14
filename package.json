@@ -3,8 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "NODE_ENV=production node ./bin/www",
-    "postinstall": "npm install --omit=dev"
+    "start": "node ./bin/www"
   },
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "^4.4.3",
