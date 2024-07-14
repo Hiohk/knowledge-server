@@ -20,9 +20,12 @@ const server = http.createServer(app);
 const io = socketIo(server);
 const wsServer = new WebSocket.Server({ server });
 
+// 从环境变量中读取数据库连接 URL
+const dbUrl = process.env.DATABASE_URL;
 
 // MongoDB 连接
-mongoose.connect('mongodb://localhost:27017/knowledge_map');
+// mongoose.connect('mongodb://localhost:27017/knowledge_map');
+mongoose.connect(dbUrl);
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 db.once('open', function () {
