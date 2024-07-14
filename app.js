@@ -20,6 +20,8 @@ const server = http.createServer(app);
 const io = socketIo(server);
 const wsServer = new WebSocket.Server({ server });
 
+require('dotenv').config();
+
 // 从环境变量中读取数据库连接 URL
 const dbUrl = process.env.DATABASE_URL;
 
