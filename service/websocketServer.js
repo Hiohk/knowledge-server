@@ -1,61 +1,65 @@
-// websocket.js
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const User = require('../models/User'); // 导入用户模型
 
-const WebSocket = require('ws');
-const User = require('../models/User');
-
-const wss = new WebSocket.Server({ port: 8080 });
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*", // 允许所有来源的跨域请求，根据实际需求设置
+    methods: ["GET", "POST"]
+  }
+});
 
 // 存储当前在线用户的信息，以用户标识符为键，用户信息为值
 const onlineUserInfos = new Map();
 
-wss.on('connection', function connection(ws) {
-    // 当有新连接时
-    ws.on('message', async function incoming(message) {
-        const messageString = message.toString('utf8');
-        try {
-            const jsonData = JSON.parse(messageString);
-            const fingerprint = jsonData.fingerprint;
-            const userInfo = await User.findOne({ fingerprint });
+// 处理客户端连接
+io.on('connection', (socket) => {
+  console.log('a user connected'); // 打印日志，表示有用户连接
 
-            if (userInfo) {
-                // 将用户信息存储在 onlineUserInfos 中
-                onlineUserInfos.set(fingerprint, userInfo);
-                // 广播更新所有在线用户的信息给所有客户端
-                broadcastOnlineUsers();
-            } else {
-                // 处理未找到用户信息的情况
-                ws.send(JSON.stringify({ error: 'User not found' }));
-            }
-        } catch (error) {
-            // 处理异常情况
-            console.error('Error processing message:', error);
-            ws.send(JSON.stringify({ error: 'Error processing message' }));
-        }
+  // 监听客户端发送的页面浏览信息
+  socket.on('pageView', async (data) => {
+    const { fingerprint, ip, location, path, timestamp } = data;
+    const userInfo = await User.findOne({ fingerprint }); // 根据指纹查找用户信息
+
+    if (userInfo) {
+      // 更新用户信息
+      userInfo.ip = ip;
+      userInfo.location = location;
+      userInfo.path = path;
+      userInfo.timestamp = timestamp;
+      userInfo.socketId = socket.id; // 记录用户的Socket ID
+      onlineUserInfos.set(fingerprint, userInfo); // 将用户信息存储在 Map 中
+      broadcastOnlineUsers(); // 广播更新所有在线用户信息给所有客户端
+    } else {
+      socket.emit('error', { error: 'User not found' }); // 发送用户未找到的错误信息给客户端
+    }
+  });
+
+  // 监听客户端断开连接事件
+  socket.on('disconnect', () => {
+    // 当连接断开时，从在线用户信息 Map 中移除该用户信息
+    onlineUserInfos.forEach((userInfo, fingerprint) => {
+      if (userInfo.socketId === socket.id) {
+        onlineUserInfos.delete(fingerprint);
+        broadcastOnlineUsers(); // 广播更新所有在线用户信息给所有客户端
+      }
     });
-
-    broadcastOnlineUsers();
-
-    ws.on('close', function close() {
-        // 当连接关闭时，从 onlineUserInfos 中移除该用户信息
-        onlineUserInfos.forEach((userInfo, fingerprint) => {
-            if (userInfo.ws === ws) {
-                onlineUserInfos.delete(fingerprint);
-                // 广播更新所有在线用户的信息给所有客户端
-                broadcastOnlineUsers();
-            }
-        });
-    });
+    console.log('user disconnected'); // 打印日志，表示用户断开连接
+  });
 });
 
+// 广播所有在线用户信息给所有客户端
 function broadcastOnlineUsers() {
-    // 构造在线用户信息数组
-    const onlineUsersArray = Array.from(onlineUserInfos.values());
-    // 广播更新所有在线用户的信息给所有客户端
-    wss.clients.forEach(function each(client) {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({ type: 'onlineUsers', users: onlineUsersArray, count: onlineUsersArray.length }));
-        }
-    });
+  const onlineUsersArray = Array.from(onlineUserInfos.values());
+  io.emit('onlineUsers', { users: onlineUsersArray, count: onlineUsersArray.length });
 }
 
-module.exports = wss;
+// 监听服务器的端口，启动服务器
+server.listen(8080, () => {
+  console.log('Server is listening on : 8080');
+});
+
+module.exports = server; 
