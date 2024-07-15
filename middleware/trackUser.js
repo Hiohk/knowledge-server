@@ -21,7 +21,6 @@ router.post('/track-user', async (req, res, next) => {
 
         // 如果已存在该用户，则返回已存在的用户信息
         if (existingUser) {
-            console.log('User already exists:', existingUser);
             return res.status(200).json({ code: 200, msg: "User information already exists." });
         }
         // 创建新用户对象

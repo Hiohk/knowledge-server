@@ -5,10 +5,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const http = require('http');
-const socketIo = require('socket.io');
-const WebSocket = require('ws');
 const mongoose = require('mongoose');
-const FingerprintJS = require('@fingerprintjs/fingerprintjs');
 const trackUser = require('./middleware/trackUser');
 const { wss } = require('./service/websocketServer'); // 导入在线用户服务
 
@@ -17,13 +14,11 @@ const usersRouter = require('./routes/users');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
-const wsServer = new WebSocket.Server({ server });
 
 
 // MongoDB 连接
-// mongoose.connect('mongodb://localhost:27017/knowledge_map');
-mongoose.connect('mongodb://viaduct.proxy.rlwy.net:37893/knowledgemap');
+// mongoose.connect('mongodb://localhost:27017/knowledge_map'); // 本地开发地址
+mongoose.connect('mongodb://mongo:ycQPwrZGLnDdqouchVRmONwYkiHWZkZP@viaduct.proxy.rlwy.net:37893'); // 线上部署地址
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 db.once('open', function () {

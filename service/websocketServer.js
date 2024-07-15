@@ -3,7 +3,7 @@
 const WebSocket = require('ws');
 const User = require('../models/User');
 
-const wss = new WebSocket.Server({ port: 8732 });
+const wss = new WebSocket.Server({ port: 8080 });
 
 // 存储当前在线用户的信息，以用户标识符为键，用户信息为值
 const onlineUserInfos = new Map();
