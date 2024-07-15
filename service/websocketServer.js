@@ -3,7 +3,8 @@ const http = require('http');
 const { Server } = require('socket.io');
 const User = require('../models/User'); // 导入用户模型
 
-const server = http.createServer();
+const app = express();
+const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
         origin: "*", // 允许所有来源的跨域请求，根据实际需求设置
