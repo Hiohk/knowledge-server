@@ -5,7 +5,6 @@ const User = require('../models/User'); // 导入用户模型
 
 const server = http.createServer();
 const io = new Server(server, {
-    path: "/socket.io",
     cors: {
         origin: "*", // 允许所有来源的跨域请求，根据实际需求设置
         methods: ["GET", "POST"]
