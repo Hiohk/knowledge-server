@@ -3,8 +3,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const User = require('../models/User'); // 导入用户模型
 
-const app = express();
-const server = http.createServer(app);
+const server = http.createServer();
 const io = new Server(server, {
     path: "/socket.io",
     cors: {
