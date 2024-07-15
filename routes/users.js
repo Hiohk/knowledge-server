@@ -19,7 +19,7 @@ router.get('/get-user', async (req, res, next) => {
 });
 
 // 查询访问用户总数
-router.get('/getAllUserCount', async (req, res, next) => {
+router.get('/get-user-count', async (req, res, next) => {
   try {
     const totalCount = await User.countDocuments();
     res.json({ totalUsers: totalCount });
