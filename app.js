@@ -7,6 +7,7 @@ const logger = require('morgan');
 const http = require('http');
 const mongoose = require('mongoose');
 const trackUser = require('./middleware/trackUser');
+const { Server } = require('socket.io');
 const User = require('./models/User'); // 导入用户模型
 // const { wss } = require('./service/websocketServer'); // 导入在线用户服务
 
@@ -16,7 +17,7 @@ const usersRouter = require('./routes/users');
 const app = express();
 const server = http.createServer(app);
 
-const io = require('socket.io')(server, {
+const io = new Server(server, {
   cors: {
     origin: "*", // 允许所有来源的跨域请求，根据实际需求设置
     methods: ["GET", "POST"]
@@ -69,11 +70,16 @@ function broadcastOnlineUsers() {
 }
 
 // 监听服务器的端口，启动服务器 8000;
-const PORT = process.env.SOCKET_PORT || 8000;
+const PORT = process.env.PORT || 3030;
+const SOCKET_PORT = process.env.SOCKET_PORT || 8000;
+
 server.listen(PORT, () => {
   console.log('Server is listening on :', PORT);
 });
 
+io.listen(SOCKET_PORT, () => {
+  console.log(`Socket.io server running on port ${SOCKET_PORT}`);
+});
 
 // MongoDB 连接
 // mongoose.connect('mongodb://localhost:27017/knowledge_map'); // 本地开发地址
@@ -107,11 +113,6 @@ app.use('/users', usersRouter);
 // 使用 trackUser 中间件
 app.use('/api', trackUser); // 将中间件应用到 /api 路径下
 
-app.use((req, res, next) => {
-  req.io = io;
-  return next();
-});
-
 // 将 WebSocket 服务器与现有的 HTTP 服务器关联
 // server.on('upgrade', function upgrade(request, socket, head) {
 //   wss.handleUpgrade(request, socket, head, function done(ws) {
@@ -134,5 +135,6 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
 
 module.exports = { app: app, server: server };
