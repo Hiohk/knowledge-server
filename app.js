@@ -19,6 +19,7 @@ const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
+  transports: ['websocket', 'polling'],
   cors: {
     origin: "*", // 允许所有来源的跨域请求，根据实际需求设置
     methods: ["GET", "POST"]
@@ -73,7 +74,7 @@ function broadcastOnlineUsers() {
 // 监听服务器的端口，启动服务器 8000;
 const PORT = process.env.SOCKET_PORT || 8000;
 server.listen(PORT, () => {
-  console.log('Server is listening on :',PORT);
+  console.log('Server is listening on :', PORT);
 });
 
 
@@ -83,7 +84,7 @@ mongoose.connect('mongodb://mongo:ycQPwrZGLnDdqouchVRmONwYkiHWZkZP@viaduct.proxy
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 db.once('open', function () {
-  console.log("connected successfully!");
+  console.log("Mongodb connected successfully!");
 });
 
 // view engine setup
