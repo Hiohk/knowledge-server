@@ -27,7 +27,7 @@ const io = require('socket.io')(server, {
 const onlineUserInfos = new Map();
 
 // 处理客户端连接
-io.of("/socket.io/").on('connection', (socket) => {
+io.on('connection', (socket) => {
   console.log('a user connected'); // 打印日志，表示有用户连接
 
   // 监听客户端发送的页面浏览信息
@@ -106,6 +106,11 @@ app.use('/users', usersRouter);
 
 // 使用 trackUser 中间件
 app.use('/api', trackUser); // 将中间件应用到 /api 路径下
+
+app.use((req, res, next) => {
+  req.io = io;
+  return next();
+});
 
 // 将 WebSocket 服务器与现有的 HTTP 服务器关联
 // server.on('upgrade', function upgrade(request, socket, head) {
