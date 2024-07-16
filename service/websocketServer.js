@@ -58,8 +58,8 @@ function broadcastOnlineUsers() {
 }
 
 // 监听服务器的端口，启动服务器 8080;
-server.listen(process.env.PORT, () => {
-  console.log('Server is listening on :', process.env.PORT);
+server.listen(8080, () => {
+  console.log('Server is listening on : 8080');
 });
 
 module.exports = server; 
