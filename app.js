@@ -33,18 +33,49 @@ io.on('connection', (socket) => {
 
   // 监听客户端发送的页面浏览信息
   socket.on('pageView', async (data) => {
-    const { fingerprint, ip, location, path, timestamp } = data;
-    const userInfo = await User.findOne({ fingerprint }); // 根据指纹查找用户信息
+    const { fingerprint, locationInfo, browserInfo, currentURL, timestamp } = data;
+    let userInfo = await User.findOne({ fingerprint }); // 根据指纹查找用户信息
 
     if (userInfo) {
-      // 更新用户信息
-      userInfo.ip = ip;
-      userInfo.location = location;
-      userInfo.path = path;
-      userInfo.timestamp = timestamp;
-      userInfo.socketId = socket.id; // 记录用户的Socket ID
-      onlineUserInfos.set(fingerprint, userInfo); // 将用户信息存储在 Map 中
-      broadcastOnlineUsers(); // 广播更新所有在线用户信息给所有客户端
+      // 检查数据是否有变化，如果有则更新  
+      let shouldUpdate = false;
+      const updateObj = {};
+
+      if (userInfo.browserInfo !== browserInfo) {
+        updateObj.browserInfo = browserInfo;
+        shouldUpdate = true;
+      }
+
+      if (userInfo.browseTime !== timestamp) {
+        updateObj.browseTime = timestamp;
+        shouldUpdate = true;
+      }
+
+      if (userInfo.locationInfo !== locationInfo) {
+        updateObj.locationInfo = locationInfo;
+        shouldUpdate = true;
+      }
+
+      if (userInfo.currentURL !== currentURL) {
+        updateObj.currentURL = currentURL;
+        shouldUpdate = true;
+      }
+
+      if (shouldUpdate) {
+        // 更新用户信息  
+        updateObj.browserInfo = browserInfo;
+        updateObj.browseTime = timestamp;
+        updateObj.locationInfo = locationInfo;
+        updateObj.currentURL = currentURL;
+
+        await User.updateOne({ fingerprint }, { $set: updateObj });
+
+        // 同步更新内存中的在线用户信息  
+        userInfo = await User.findOne({ fingerprint }); // 重新获取更新后的用户信息  
+        onlineUserInfos.set(fingerprint, userInfo);
+
+        broadcastOnlineUsers(); // 广播更新所有在线用户信息给所有客户端  
+      }
     } else {
       socket.emit('error', { error: 'User not found' }); // 发送用户未找到的错误信息给客户端
     }
@@ -113,13 +144,6 @@ app.use('/users', usersRouter);
 // 使用 trackUser 中间件
 app.use('/api', trackUser); // 将中间件应用到 /api 路径下
 
-// 将 WebSocket 服务器与现有的 HTTP 服务器关联
-// server.on('upgrade', function upgrade(request, socket, head) {
-//   wss.handleUpgrade(request, socket, head, function done(ws) {
-//     wss.emit('connection', ws, request);
-//   });
-// });
-
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
@@ -137,4 +161,4 @@ app.use(function (err, req, res, next) {
 });
 
 
-module.exports = { app: app, server: server };
+module.exports = app;

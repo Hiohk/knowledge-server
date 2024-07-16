@@ -10,6 +10,7 @@ router.post('/track-user', async (req, res, next) => {
         const {
             fingerprint,
             browserInfo,
+            createTime,
             browseTime,
             locationInfo,
             currentURL
@@ -27,6 +28,7 @@ router.post('/track-user', async (req, res, next) => {
         const newUser = new User({
             fingerprint,
             browserInfo,
+            createTime,
             browseTime,
             locationInfo,
             currentURL
