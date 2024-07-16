@@ -54,7 +54,6 @@ io.on('connection', (socket) => {
 // 广播所有在线用户信息给所有客户端
 function broadcastOnlineUsers() {
     const onlineUsersArray = Array.from(onlineUserInfos.values());
-    console.log({ users: onlineUsersArray, count: onlineUsersArray.length });
     io.emit('onlineUsers', { users: onlineUsersArray, count: onlineUsersArray.length });
 }
 
