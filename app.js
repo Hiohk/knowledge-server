@@ -70,9 +70,10 @@ function broadcastOnlineUsers() {
   io.emit('onlineUsers', { users: onlineUsersArray, count: onlineUsersArray.length });
 }
 
-// 监听服务器的端口，启动服务器 8080;
-server.listen(8080, () => {
-  console.log('Server is listening on : 8080');
+// 监听服务器的端口，启动服务器 8000;
+const PORT = process.env.SOCKET_PORT || 8000;
+server.listen(PORT, () => {
+  console.log('Server is listening on :',PORT);
 });
 
 
