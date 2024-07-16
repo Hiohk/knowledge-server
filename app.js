@@ -77,6 +77,10 @@ server.listen(PORT, () => {
   console.log('Server is listening on :', PORT);
 });
 
+app.get("/socket.io/", (req, res) => {
+  console.log("我收到了请求", req);
+});
+
 
 // MongoDB 连接
 // mongoose.connect('mongodb://localhost:27017/knowledge_map'); // 本地开发地址
