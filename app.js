@@ -7,8 +7,6 @@ const logger = require('morgan');
 const http = require('http');
 const mongoose = require('mongoose');
 const trackUser = require('./middleware/trackUser');
-
-const { Server } = require('socket.io');
 const User = require('./models/User'); // 导入用户模型
 // const { wss } = require('./service/websocketServer'); // 导入在线用户服务
 
@@ -18,7 +16,7 @@ const usersRouter = require('./routes/users');
 const app = express();
 const server = http.createServer(app);
 
-const io = new Server(server, {
+const io = require('socket.io')(server, {
   cors: {
     origin: "*", // 允许所有来源的跨域请求，根据实际需求设置
     methods: ["GET", "POST"]
@@ -29,7 +27,7 @@ const io = new Server(server, {
 const onlineUserInfos = new Map();
 
 // 处理客户端连接
-io.on('connection', (socket) => {
+io.of("/socket.io/").on('connection', (socket) => {
   console.log('a user connected'); // 打印日志，表示有用户连接
 
   // 监听客户端发送的页面浏览信息
@@ -74,10 +72,6 @@ function broadcastOnlineUsers() {
 const PORT = process.env.SOCKET_PORT || 8000;
 server.listen(PORT, () => {
   console.log('Server is listening on :', PORT);
-});
-
-app.get("/socket.io/", (req, res) => {
-  console.log("我收到了请求", req);
 });
 
 
