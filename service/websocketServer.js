@@ -6,7 +6,6 @@ const User = require('../models/User'); // 导入用户模型
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  path: '/socket.io', // 设置路径为 '/socket.io'
   cors: {
     origin: "*", // 允许所有来源的跨域请求，根据实际需求设置
     methods: ["GET", "POST"]
@@ -60,7 +59,7 @@ function broadcastOnlineUsers() {
 
 // 监听服务器的端口，启动服务器 8080;
 server.listen(process.env.PORT, () => {
-  console.log('Server is listening on : 8080');
+  console.log('Server is listening on :', process.env.PORT);
 });
 
 module.exports = server; 
