@@ -9,7 +9,6 @@ const mongoose = require('mongoose');
 const trackUser = require('./middleware/trackUser');
 const { Server } = require('socket.io');
 const User = require('./models/User'); // 导入用户模型
-// const { wss } = require('./service/websocketServer'); // 导入在线用户服务
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -37,6 +36,7 @@ io.on('connection', (socket) => {
     let userInfo = await User.findOne({ fingerprint }); // 根据指纹查找用户信息
 
     if (userInfo) {
+      userInfo.socketId = socket.id;
       // 检查数据是否有变化，如果有则更新  
       let shouldUpdate = false;
       const updateObj = {};
