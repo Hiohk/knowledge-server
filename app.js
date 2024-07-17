@@ -36,7 +36,6 @@ io.on('connection', (socket) => {
     let userInfo = await User.findOne({ fingerprint }); // 根据指纹查找用户信息
 
     if (userInfo) {
-      userInfo.socketId = socket.id;
       // 检查数据是否有变化，如果有则更新  
       let shouldUpdate = false;
       const updateObj = {};
@@ -72,7 +71,7 @@ io.on('connection', (socket) => {
 
         // 同步更新内存中的在线用户信息  
         userInfo = await User.findOne({ fingerprint }); // 重新获取更新后的用户信息  
-        onlineUserInfos.set(fingerprint, userInfo);
+        onlineUserInfos.set(fingerprint, { socketId: socket.id, userInfo: userInfo });
 
         broadcastOnlineUsers(); // 广播更新所有在线用户信息给所有客户端  
       }
@@ -84,12 +83,19 @@ io.on('connection', (socket) => {
   // 监听客户端断开连接事件
   socket.on('disconnect', () => {
     // 当连接断开时，从在线用户信息 Map 中移除该用户信息
+    let fingerprintToDelete;
     onlineUserInfos.forEach((userInfo, fingerprint) => {
+      console.log(userInfo, fingerprint);
       if (userInfo.socketId === socket.id) {
-        onlineUserInfos.delete(fingerprint);
-        broadcastOnlineUsers(); // 广播更新所有在线用户信息给所有客户端
+        fingerprintToDelete = fingerprint;
       }
     });
+
+    // 如果找到了对应的指纹，执行删除操作
+    if (fingerprintToDelete !== undefined) {
+      onlineUserInfos.delete(fingerprintToDelete);
+      broadcastOnlineUsers(); // 广播更新所有在线用户信息给所有客户端
+    }
     console.log('user disconnected'); // 打印日志，表示用户断开连接
   });
 });
@@ -97,7 +103,11 @@ io.on('connection', (socket) => {
 // 广播所有在线用户信息给所有客户端
 function broadcastOnlineUsers() {
   const onlineUsersArray = Array.from(onlineUserInfos.values());
-  io.emit('onlineUsers', { users: onlineUsersArray, count: onlineUsersArray.length });
+  let userInfoArr = [];
+  onlineUsersArray.map(item => {
+    userInfoArr.push(item.userInfo);
+  });
+  io.emit('onlineUsers', { users: userInfoArr, count: onlineUsersArray.length });
 }
 
 // 监听服务器的端口，启动服务器 8000;
@@ -108,6 +118,7 @@ server.listen(PORT, () => {
   console.log('Server is listening on :', PORT);
 });
 
+// 生产环境请删除
 io.listen(SOCKET_PORT, () => {
   console.log(`Socket.io server running on port ${SOCKET_PORT}`);
 });
