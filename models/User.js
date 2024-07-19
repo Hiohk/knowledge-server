@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
     fingerprint: String,
-    browserInfo: String,
+    browserInfo: Object,
     createTime: Date,
     browseTime: Date,
     locationInfo: {

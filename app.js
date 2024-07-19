@@ -85,7 +85,6 @@ io.on('connection', (socket) => {
     // 当连接断开时，从在线用户信息 Map 中移除该用户信息
     let fingerprintToDelete;
     onlineUserInfos.forEach((userInfo, fingerprint) => {
-      console.log(userInfo, fingerprint);
       if (userInfo.socketId === socket.id) {
         fingerprintToDelete = fingerprint;
       }
