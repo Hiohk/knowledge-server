@@ -124,7 +124,9 @@ io.listen(SOCKET_PORT, () => {
 
 // MongoDB 连接
 // mongoose.connect('mongodb://localhost:27017/knowledge_map'); // 本地开发地址
-mongoose.connect('mongodb://mongo:ycQPwrZGLnDdqouchVRmONwYkiHWZkZP@viaduct.proxy.rlwy.net:37893'); // 线上部署地址
+const databaseUrl = "mongodb+srv://root:UOaM9IluRjorkzTx@cluster0.rvt87g0.mongodb.net/knowledge_map?retryWrites=true&w=majority&appName=Cluster0";
+
+mongoose.connect(databaseUrl); // 线上部署地址
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 db.once('open', function () {
