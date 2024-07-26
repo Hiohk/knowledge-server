@@ -14,7 +14,6 @@ router.post('/track-user', async (req, res, next) => {
             browseTime,
             locationInfo,
             currentURL
-            // 其他需要收集的信息
         } = req.body;
 
         // 查询数据库中是否已经存在该用户

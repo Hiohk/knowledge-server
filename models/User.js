@@ -12,7 +12,6 @@ const userSchema = new mongoose.Schema({
         default: null
     },
     currentURL: String
-    // 其他字段根据需要添加
 });
 
 module.exports = mongoose.model('User', userSchema);
