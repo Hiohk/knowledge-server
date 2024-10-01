@@ -14,7 +14,7 @@
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
-    "mongoose": "^8.5.1",
+    "mongoose": "^8.7.0",
     "morgan": "~1.9.1",
     "socket.io": "^4.7.5",
     "uglify-js": "^3.19.3",
