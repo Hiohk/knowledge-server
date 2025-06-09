@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const http = require('http');
 const mongoose = require('mongoose');
+const dotenv = require("dotenv");
 const trackUser = require('./middleware/trackUser');
 const { Server } = require('socket.io');
 const User = require('./models/User'); // 导入用户模型
@@ -15,6 +16,8 @@ const usersRouter = require('./routes/users');
 
 const app = express();
 const server = http.createServer(app);
+
+dotenv.config();
 
 const io = new Server(server, {
   cors: {
@@ -106,6 +109,7 @@ function broadcastOnlineUsers() {
   onlineUsersArray.map(item => {
     userInfoArr.push(item.userInfo);
   });
+  console.log("total: ",onlineUsersArray.length);
   io.emit('onlineUsers', { users: userInfoArr, count: onlineUsersArray.length });
 }
 
@@ -124,7 +128,7 @@ io.listen(SOCKET_PORT, () => {
 
 // MongoDB 连接
 // mongoose.connect('mongodb://localhost:27017/knowledge_map'); // 本地开发地址
-const databaseUrl = "mongodb+srv://root:UOaM9IluRjorkzTx@cluster0.rvt87g0.mongodb.net/knowledge_map?retryWrites=true&w=majority&appName=Cluster0";
+const databaseUrl = process.env.DATA_BASE_URL;
 
 mongoose.connect(databaseUrl); // 线上部署地址
 const db = mongoose.connection;
